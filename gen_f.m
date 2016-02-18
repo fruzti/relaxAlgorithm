@@ -3,6 +3,6 @@ function f = gen_f(eta,l)
 % eta : fundamental frequency
 % l : number of harmonics
 
-    f = exp(1i*eta*(l:-l)).';
+    f = exp(1i*eta*(l:-1:-l)).';
 
 end

@@ -1,12 +1,13 @@
-function y = applyFFT(x,N)
-% y : centered fft of x
+function x = applyIFFT(y,N)
 % x : time-domain signal
+% y : centered fft of x
 % N : length of signal
 
+    x = ifft(ifftshift(y));
+    
     if nargin < 2
         N = length(x);
     end
     
-    y = 1/N * fftshift(fft(x)).';
-
+    x = N * x;
 end
