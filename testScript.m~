@@ -11,7 +11,7 @@ samples = ceil(fs * P/f);
 
 t = (0:samples)/fs;
 % original signal
-s = sin(w*t); N = length(s); l = floor(N/2);
+s = sin(w*t).'; N = length(s); l = floor(N/2);
 a = applyFFT(s,N);
 
 % simulation parameters
@@ -37,9 +37,10 @@ for i = 1:length(Theta)
 end
 
 mesh(J), xlabel('Range [Eta]'), ylabel('DOA [Theta]')
-[maxR,maxRindx] = max(J);
-[~,etaEst] = max(maxR);
-thetaEst = maxRindx(etaEst);
+[maxJ, maxIndx] = findMaximizer(J);
 disp('Estimate'); 
-disp(strcat('Range [Eta]: ',num2str(etaEst)))
-disp(strcat('DOA [Theta]: ',num2str(thetaEst)))
+disp(strcat('Range [Eta]: ',num2str(maxIndx(2))))
+disp(strcat('DOA [Theta]: ',num2str(maxIndx(1))))
+
+Ps = s'*s;
+beta_est = sqrt(maxJ)/(K*P)

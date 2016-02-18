@@ -7,6 +7,6 @@ function y = applyFFT(x,N)
         N = length(x);
     end
     
-    y = 1/N * fftshift(fft(x)).';
+    y = 1/N * fftshift(fft(x));
 
 end
