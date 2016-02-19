@@ -1,5 +1,5 @@
 function [micFreqData, srcFreqData, theta, eta, ...
-    micTimeData, srcTimeData] = genTstMicData(K, rho, L)
+    micTimeData, srcTimeData] = genTstMicData(K, rho, L, trueDOA, trueTOA)
 % Generate a mixture of 3 pure sines at 1kHz to test the algorithm 
 % micFreqData : freq-domain signal at the microphones
 % srcFreqData : freq-domain signal at the transmitter
@@ -10,9 +10,15 @@ function [micFreqData, srcFreqData, theta, eta, ...
 % K :  number of microphones
 % rho : radius of UCA
 % L : number of signals
+% trueDOA : input DOAs
+% trueTOA : input DOAs
 
     if nargin < 3
         L = 1;
+    end
+    
+    if nargin > 3
+        flag = 1;
     end
 
     % sinosoid frequency
@@ -29,16 +35,24 @@ function [micFreqData, srcFreqData, theta, eta, ...
     srcFreqData = applyFFT(srcTimeData,N);
 
     % simulation parameters
-    theta = zeros(L,1); eta = zeros(L,1);
-    theta(1) = 2*pi*rand;
-    eta(1) = 2*pi*rand;
+    if ~flag
+        theta = zeros(L,1); eta = zeros(L,1);
+        theta(1) = 2*pi*rand;
+        eta(1) = 2*pi*rand;
+    else
+        theta = trueDOA; eta = trueTOA;
+    end
     micTimeData = genDelayData(srcTimeData,theta(1),eta(1),K,rho);
     
     % microphone data
     for i = 2:L
-        % random theta and eta for each component
-        theta(i) = 2*pi*rand;
-        eta(i) = 2*pi*randn;
+        
+        if ~flag
+            % random theta and eta for each component
+            theta(i) = 2*pi*rand;
+            eta(i) = 2*pi*randn;
+        end
+            
         micTimeData = micTimeData + ...
                 genDelayData(srcTimeData,theta(i),eta(i),K,rho);
     end

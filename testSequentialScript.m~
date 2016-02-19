@@ -1,5 +1,4 @@
-% Test of RELAX algorithm estimating L sources, with L known a-priori
-% [It has issues with convergence by errors in estimation]
+% Test of Sequential ML algorithm estimating L sources, with L known a-priori
 clear all, close all
 
 K = 6;
@@ -16,8 +15,17 @@ trueTOA = 2*pi/4 * (0:(L-1))';
 N = length(srcTimeData);
 
 % RELAX : BEGIN
-[estDOA, estTOA, estBeta] = estRELAX_TOA_DOA(micTimeData, srcTimeData, ...
-    srcFreqData, K, rho, L, N);
+[estDOA, estTOA, estBeta] = sequentialMLE_TOA_DOA(micTimeData,...
+    srcTimeData, srcFreqData, K, rho, L, N);
+
+% Gain Correction
+S = zeros(N*K,L);
+for l = 1:L
+    tmp = genDelayData(srcTimeData,estDOA(l), estTOA(l), K, rho);
+    S(:,l) = tmp(:);
+end
+
+estBeta = S\micTimeData(:);
 
 disp('Estimates')
 disp(strcat('------DOAs---','---TOAs---', '---Betas---'))

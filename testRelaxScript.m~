@@ -14,12 +14,17 @@ N = length(srcTimeData);
 
 % RELAX : BEGIN
 
+estDOA = zeros(L,1); estTOA = zeros(L,1); estBeta = zeros(L,1);
+
 for numSrcs = 1 : L
+    
     j0 = numSrcs;
     
-    while ( itErr > 10e-3 )
+    while ( itErr > 1e-3 )
         
         for j = j0:numSrcs
+            
+            tmpMicData = micTimeData;
             
             indVec = 1:numSrcs;
             indVec = indVec(indVec ~= j);
@@ -27,14 +32,28 @@ for numSrcs = 1 : L
             for p = indVec
                 
                 y_p = genDelayData(srcTimeData,estDOA(p),estTOA(p),K, rho);
-                micTimeData = micTimeData - y_p;
+                tmpMicData = tmpMicData - estBeta(p)*y_p;
                 
             end
             
-            getFreqMicData(micTimeData, N, K);
+            tmpMicFreqData = getFreqMicData(tmpMicData, N, K);
+            
+            [estDOA(j), estTOA(j), estBeta(j)] = estML_TOA_DOA(tmpMicFreqData,...
+                srcData, K, rho);
         end
         
+        j0 = 1;
+        
+        currCost = getCost(micTimeData, estDOA, estTOA, estBeta, numSrcs);
+        
+        if (numSrcs == 1)
+            prevCost = currCost;
+        end
+        
+        itErr = abs( currCost - prevCost );
+        
+        prevCost = currCost;
+        
     end
-    
-    
+ 
 end
