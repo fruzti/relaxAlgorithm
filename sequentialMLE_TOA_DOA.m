@@ -35,10 +35,14 @@ function [estDOA, estTOA, estBeta] = sequentialMLE_TOA_DOA(micTimeData,...
             
                 tmpMicFreqData = getFreqMicData(tmpMicData, N, K);
             
-                [estDOA(j), estTOA(j), estBeta(j)] = estML_TOA_DOA(tmpMicFreqData,...
-                    srcFreqData, K, rho, estDOA(indVec), estTOA(indVec));
+%                 [estDOA(j), estTOA(j), estBeta(j)] = estML_TOA_DOA(tmpMicFreqData,...
+%                     srcFreqData, K, rho, estDOA(indVec), estTOA(indVec));
+                [estDOA(j), estTOA(j), ~] = estML_TOA_DOA(tmpMicFreqData,...
+                    srcFreqData, K, rho);
                 % Bounding beta
-                estBeta(j) = min(1, estBeta(j));
+%                 estBeta(j) = min(1, estBeta(j));
+                estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
+                    estTOA, N, K, numSrcs, rho);
             end
         
             j0 = 1;
