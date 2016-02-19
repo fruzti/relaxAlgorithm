@@ -17,6 +17,6 @@ function estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
         S(:,l) = tmp(:);
     end
 
-    estBeta = S\micTimeData(:);
+    estBeta = abs(S\micTimeData(:));
 
 end
