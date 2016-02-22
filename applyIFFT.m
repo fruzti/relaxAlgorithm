@@ -3,7 +3,7 @@ function x = applyIFFT(y,N)
 % y : centered fft of x
 % N : length of signal
 
-    x = ifft(ifftshift(y));
+    x = ifft(ifftshift(y),'symmetric');
     
     if nargin < 2
         N = length(x);

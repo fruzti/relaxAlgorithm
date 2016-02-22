@@ -24,13 +24,14 @@ function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
     
     if ~isempty(prevTOA)
 
-        tol = deg2rad(10);
+        tolT = deg2rad(30);
+        tolE = deg2rad(1);
         
         for i = 1:length(prevDOA)
-            Theta = Theta( Theta < (prevDOA(i) - tol) |...
-                Theta > (prevDOA(i) + tol) );
-            Eta = Eta( Eta < (prevTOA(i) - tol) |...
-                Eta > (prevTOA(i) + tol) );
+            Theta = Theta( Theta < (prevDOA(i) - tolT) |...
+                Theta > (prevDOA(i) + tolT) );
+            Eta = Eta( Eta < (prevTOA(i) - tolE) |...
+                Eta > (prevTOA(i) + tolE) );
         end
         
     end

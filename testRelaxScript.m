@@ -4,7 +4,7 @@ clear all, close all
 
 K = 6;
 rho = 0.06;
-L = 3;
+L = 4;
 
 % Creates K virtual signals coming from L random waves impinging in a UCA
 % with radius rho.
@@ -16,9 +16,10 @@ trueTOA = 2*pi/4 * (0:(L-1))';
 N = length(srcTimeData);
 
 % RELAX : BEGIN
+%%
 [estDOA, estTOA, estBeta] = estRELAX_TOA_DOA(micTimeData, srcTimeData, ...
     srcFreqData, K, rho, L, N);
-
+%%
 disp('Estimates')
 disp(strcat('------DOAs---','---TOAs---', '---Betas---'))
 disp([estDOA, estTOA, estBeta])

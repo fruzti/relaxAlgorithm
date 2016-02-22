@@ -25,18 +25,23 @@ function [estDOA, estTOA, estBeta] = estRELAX_TOA_DOA(micTimeData, srcTimeData, 
             
                 indVec = 1:numSrcs;
                 indVec = indVec(indVec ~= j);
+                
+                % was added // doesn't seem to help
+                pRho = 0.25;
             
                 for p = indVec
                 
                     y_p = genDelayData(srcTimeData,estDOA(p),estTOA(p),K, rho);
-                    tmpMicData = tmpMicData - estBeta(p)*y_p;
+                    tmpMicData = tmpMicData - pRho*estBeta(p)*y_p;
                 
                 end
             
                 tmpMicFreqData = getFreqMicData(tmpMicData, N, K);
             
+%                 [estDOA(j), estTOA(j), estBeta(j)] = estML_TOA_DOA(tmpMicFreqData,...
+%                     srcFreqData, K, rho, estDOA(indVec), estTOA(indVec));
                 [estDOA(j), estTOA(j), estBeta(j)] = estML_TOA_DOA(tmpMicFreqData,...
-                    srcFreqData, K, rho, estDOA(indVec), estTOA(indVec));
+                    srcFreqData, K, rho);
                 % Bounding beta
                 estBeta(j) = min(1, estBeta(j));
             end

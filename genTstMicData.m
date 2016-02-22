@@ -30,7 +30,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
     end
 
     % sinosoid frequency
-    f = 1e3;
+    f = 10e3;
     w = 2*pi*f;
     % number of samples
     samples = ceil(fs * P/f);
