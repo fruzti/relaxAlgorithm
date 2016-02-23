@@ -1,4 +1,6 @@
 function [maxValue, maxIndx] = findMaximizer(J)
+% function [maxValue, maxIndx] = findMaximizer(J)
+% ------------------------------------------------
 % maxValue : maximum of cost function
 % maxIndx : index of the maximum of cost function
 % J : cost function

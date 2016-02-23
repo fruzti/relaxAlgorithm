@@ -1,14 +1,17 @@
 function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
-    srcData,K,rho,prevDOA, prevTOA)
+    srcData,K,p,prevDOA, prevTOA)
+% function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
+%     srcData,K,p,prevDOA, prevTOA)
+% ------------------------------------------------------------------------
 % estDOA : mle of direction-of-arrival
 % estTOA : mle of time-of-arrival
 % estBeta : mle of amplitude of signal
 % micFreqData : fft coefficients of receivers data
 % srcData     : fft coefficients of source
 % K     : number of microphones
-% rho   : radius of UCA
-% prevDOA : excluded DOA from grid
-% prevTOA : excluded TOA from grid
+% p   : frequency-radius equivalence
+% prevDOA : excluded DOA from grid [optional]
+% prevTOA : excluded TOA from grid [optional]
 
     if nargin < 5
         prevDOA = [];
@@ -20,7 +23,7 @@ function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
     
     % uniform grid for cost function
     
-    Theta = deg2rad(0:359); Eta = deg2rad(0:359);
+    Theta = deg2rad(0:1:359); Eta = deg2rad(0:1:359);
     
     if ~isempty(prevTOA)
 
@@ -40,7 +43,7 @@ function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
     maxJ = 0; 
     for i = 1:length(Theta)
         for j = 1:length(Eta)
-            J(i,j) = evalCost(micFreqData, Theta(i), srcData, Eta(j), K, l, rho);
+            J(i,j) = evalCost(micFreqData, Theta(i), srcData, Eta(j), K, l, p);
             if J(i,j) > maxJ
                 maxJ = J(i,j); estDOA = Theta(i); estTOA = Eta(j);
             end

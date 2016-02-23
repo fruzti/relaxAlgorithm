@@ -1,4 +1,6 @@
 function y = applyFFT(x,N)
+% function y = applyFFT(x,N)
+% ---------------------------
 % y : centered fft of x
 % x : time-domain signal
 % N : length of signal

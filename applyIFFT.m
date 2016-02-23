@@ -1,4 +1,6 @@
 function x = applyIFFT(y,N)
+% function x = applyIFFT(y,N)
+% ---------------------------
 % x : time-domain signal
 % y : centered fft of x
 % N : length of signal

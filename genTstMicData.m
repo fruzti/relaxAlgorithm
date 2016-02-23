@@ -1,6 +1,10 @@
 function [micFreqData, srcFreqData, theta, eta, ...
-    micTimeData, srcTimeData] = genTstMicData(K, rho, L, trueDOA, trueTOA,...
-    P,fs)
+    micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
+    P,fs,f0)
+%function [micFreqData, srcFreqData, theta, eta, ...
+%   micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
+%     P,fs)
+% --------------------------------------------------------------------
 % Generate a mixture of 3 pure sines at 1kHz to test the algorithm 
 % micFreqData : freq-domain signal at the microphones
 % srcFreqData : freq-domain signal at the transmitter
@@ -9,7 +13,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
 % micTimeData : time-domain signal at the microphones
 % srcTimeData : time-domain signal at the transmitter
 % K :  number of microphones
-% rho : radius of UCA
+% p : frequency-radius equivalence
 % L : number of signals (optional)
 % trueDOA : input DOAs (optional)
 % trueTOA : input DOAs (optional)
@@ -28,16 +32,21 @@ function [micFreqData, srcFreqData, theta, eta, ...
         P = 5;
         fs = 10e3;
     end
+    
+    if nargin < 8
+        f0 = 5e3;
+    end
 
     % sinosoid frequency
-    f = 10e3;
-    w = 2*pi*f;
+    w = 2*pi*f0;
     % number of samples
-    samples = ceil(fs * P/f);
+    samples = ceil(fs * P/f0);
 
     t = (0:samples)/fs;
     % original signal
-    srcTimeData = sin(w*t).'; N = length(srcTimeData); l = floor(N/2);
+%     srcTimeData = sin(w*t).';
+    srcTimeData = randn(samples+1,1);
+    N = length(srcTimeData); l = floor(N/2);
     srcFreqData = applyFFT(srcTimeData,N);
 
     % simulation parameters
@@ -48,7 +57,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
     else
         theta = trueDOA; eta = trueTOA;
     end
-    micTimeData = genDelayData(srcTimeData,theta(1),eta(1),K,rho);
+    micTimeData = genDelayData(srcTimeData,theta(1),eta(1),K,p);
     
     % microphone data
     for i = 2:L
@@ -60,7 +69,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
         end
             
         micTimeData = micTimeData + ...
-                genDelayData(srcTimeData,theta(i),eta(i),K,rho);
+                genDelayData(srcTimeData,theta(i),eta(i),K,p);
     end
 
     micFreqData = getFreqMicData(micTimeData, N, K);

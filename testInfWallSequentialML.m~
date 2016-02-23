@@ -1,15 +1,16 @@
 % Test of Sequential ML algorithm from a single virtual source
 clear all, close all
 
-P = 150;
-fs = 48e3;
-f0 = 10e3;
+P = 100;
+fs = 20e3;
+f0 = 5e3;
 N = (P/f0 * fs) + 1;         % Hardcoded simulation parameters
 w0 = 2*pi/N;
 c = 344.8;
 
 K = 6;
-rho = 0.12;
+rho = 0.06;
+p = w0*rho*fs/c;    % frequency-radius equivalence
 
 % range2source
 dSrc = 1.5; %[m]
@@ -48,25 +49,34 @@ dRfx3 = norm(rfxPos3);
 etaRfx3 = w0*dRfx3*fs/c;
 
 
-% trueDOA = [DOAsrc; DOArfx; DOArfx2; DOArfx3];
-% trueTOA = [etaSrc; etaRfx; etaRfx2; etaRfx3]; 
-trueDOA = [DOAsrc; DOArfx];
-trueTOA = [etaSrc; etaRfx];
-L = length(trueTOA);
-%%
-[micFreqData, srcFreqData, trueDOA, trueTOA, ...
-    micTimeData, srcTimeData] = genTstMicData(K, rho,L, trueDOA, trueTOA,...
-    P,fs);
+trueDOA = [DOAsrc; DOArfx; DOArfx2; DOArfx3];
+trueTOA = [etaSrc; etaRfx; etaRfx2; etaRfx3]; 
 
-[estDOA, estTOA, estBeta] = sequentialMLE_TOA_DOA(micTimeData,...
-    srcTimeData, srcFreqData, K, rho, L, N);
+L = length(trueTOA);
+
+warning off
+
+[micFreqData, srcFreqData, trueDOA, trueTOA, ...
+    micTimeData, srcTimeData] = genTstMicData(K, p,L, trueDOA, trueTOA,...
+    P,fs,f0);
+
+[estDOA, estTOA, ~, J] = sequentialMLE_TOA_DOA(micTimeData,...
+    srcTimeData, srcFreqData, K, p, L, N);
 
 estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
-                    estTOA, N, K, L, rho);
+                    estTOA, N, K, L, p);
 %%
 disp('Estimates')
 disp(strcat('------DOAs---','--TOAs---', '-EstBetas---'))
-disp([rad2deg(estDOA), estTOA*c/(w0*fs), estBeta])
+estimates = [mod(rad2deg(estDOA),360), estTOA*c/(w0*fs), estBeta];
+[~,or] = sort(estimates(:,1));
+disp(estimates(or,:))
 disp('True')
 disp(strcat('------DOAs---','--TOAs---'))
-disp([rad2deg(trueDOA) trueTOA*c/(w0*fs)])
+trueValues = [mod(rad2deg(trueDOA),360) trueTOA*c/(w0*fs)];
+[~,or] = sort(trueValues(:,1));
+disp(trueValues(or,:))
+
+p1 = polar(trueValues(:,1), trueValues(:,2),'og');
+hold on, p2 = polar(estimates(:,1), estimates(:,2), 'xr');
+legend([p1 p2],'True Values', 'Estimates')

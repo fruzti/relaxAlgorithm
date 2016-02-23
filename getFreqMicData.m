@@ -1,4 +1,6 @@
 function micFreqData = getFreqMicData(micTimeData,N,K)
+% function micFreqData = getFreqMicData(micTimeData,N,K)
+% --------------------------------------------------------
 % micFreqData : fft coefficients of micFreqData
 % micTimeData : time-domain signal of microphones
 

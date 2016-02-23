@@ -1,9 +1,11 @@
-function sDelayed = genDelayData(s,theta,eta,K,rho)
+function sDelayed = genDelayData(s,theta,eta,K,p)
+% function sDelayed = genDelayData(s,theta,eta,K,p)
+% ---------------------------------------------------
 % sDelay : delayed time signal
 % theta : direction of arrival
 % eta : angle of range
 % K : number of microphones
-% rho : radius of array
+% p : frequency-radius equivalence
     
     % length of signal
     N = length(s);
@@ -18,7 +20,7 @@ function sDelayed = genDelayData(s,theta,eta,K,rho)
     sDelayed = zeros(N,K);
     % filling array
     for k = 1:K
-        dk = gen_d(theta,l,rho,K,k);
+        dk = gen_d(theta,l,K,k,p);
         sDelayed(:,k) = applyIFFT(a.*dk.*f,N);
     end
 end

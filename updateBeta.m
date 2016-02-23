@@ -1,5 +1,8 @@
 function estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
-    estTOA, N, K, L, rho)
+    estTOA, N, K, L, p)
+% function estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
+%     estTOA, N, K, L, p)
+% ------------------------------------------------------------------------
 % estBeta : updated beta
 % micTimeData : time-domain signal from receivers
 % srcTimeData : time-domain signal from transmitter
@@ -8,12 +11,12 @@ function estBeta = updateBeta(micTimeData, srcTimeData, estDOA,...
 % N : number of samples
 % K : number of microphones
 % L : number of sources
-% rho : radius of UCA
+% p : frequency-radius equivalence
 
     S = zeros(N*K,L);
     
     for l = 1:L
-        tmp = genDelayData(srcTimeData,estDOA(l), estTOA(l), K, rho);
+        tmp = genDelayData(srcTimeData,estDOA(l), estTOA(l), K, p);
         S(:,l) = tmp(:);
     end
 
