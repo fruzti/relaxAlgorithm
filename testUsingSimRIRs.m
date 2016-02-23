@@ -31,7 +31,7 @@ srcTimeData = randn(N1,1);
 % srcTimeData = resample(srcTimeData(:,1), fs, fT);
 
 % Generate Microphones Signals
-fileNameRIRs = 'ISM_RIRs4.mat'; % T60 = 0.6
+fileNameRIRs = 'ISM_RIRs.mat'; % T60 = 0.6
 AuData = ISM_AudioData(fileNameRIRs, srcTimeData);
 
 offset = 100;
