@@ -5,7 +5,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
 %   micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
 %     P,fs)
 % --------------------------------------------------------------------
-% Generate a mixture of 3 pure sines at 1kHz to test the algorithm 
+% Generate a pseudorandom signal
 % micFreqData : freq-domain signal at the microphones
 % srcFreqData : freq-domain signal at the transmitter
 % theta : DOAs

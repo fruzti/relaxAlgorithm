@@ -1,7 +1,7 @@
 % Test of Sequential ML algorithm from a single virtual source
 clear all, close all
 
-P = 100;
+P = 80;
 fs = 20e3;
 f0 = 5e3;
 N = (P/f0 * fs) + 1;         % Hardcoded simulation parameters
@@ -77,6 +77,7 @@ trueValues = [mod(rad2deg(trueDOA),360) trueTOA*c/(w0*fs)];
 [~,or] = sort(trueValues(:,1));
 disp(trueValues(or,:))
 
-p1 = polar(trueValues(:,1), trueValues(:,2),'og');
-hold on, p2 = polar(estimates(:,1), estimates(:,2), 'xr');
+p1 = polar(deg2rad(trueValues(:,1)), trueValues(:,2),'og');
+hold on, p2 = polar(deg2rad(estimates(:,1)), estimates(:,2), 'xr');
 legend([p1 p2],'True Values', 'Estimates')
+title('Estimation of ISM')

@@ -1,7 +1,7 @@
 % Test of Sequential ML algorithm from a single virtual source
 clear all, close all
 
-P = 100;
+P = 80;
 fs = 20e3;
 f0 = 5e3;
 N = (P/f0 * fs) + 1;         % Hardcoded simulation parameters
