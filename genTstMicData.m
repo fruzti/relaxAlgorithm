@@ -1,6 +1,6 @@
 function [micFreqData, srcFreqData, theta, eta, ...
     micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
-    P,fs,f0)
+    P,fs,f0,beta)
 %function [micFreqData, srcFreqData, theta, eta, ...
 %   micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
 %     P,fs)
@@ -57,7 +57,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
     else
         theta = trueDOA; eta = trueTOA;
     end
-    micTimeData = genDelayData(srcTimeData,theta(1),eta(1),K,p);
+    micTimeData = beta(1)*genDelayData(srcTimeData,theta(1),eta(1),K,p);
     
     % microphone data
     for i = 2:L
@@ -69,7 +69,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
         end
             
         micTimeData = micTimeData + ...
-                genDelayData(srcTimeData,theta(i),eta(i),K,p);
+                beta(i)*genDelayData(srcTimeData,theta(i),eta(i),K,p);
     end
 
     micFreqData = getFreqMicData(micTimeData, N, K);
