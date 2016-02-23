@@ -13,15 +13,17 @@ function a = nfGen_a(micPos,srcPos,l,N,fs,flag)
 
     % get attenuation and delay information
     [~, kBeta, kTau] = getMic2SrcParams(micPos, srcPos);
-    
-    if flag
-        kBeta = 1./kBeta;
-    end
+
     % delay in number of samples
     eta = kTau*fs;
     
     % number of microphones
     K = length(kBeta);
+    
+    if flag
+%         kBeta = 1./kBeta;
+        kBeta = ones(K,1);
+    end
     
     a = zeros(N,K);
     for k = 1:K

@@ -1,5 +1,5 @@
 function sDelayed = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
-% function sDelayed = genDelayData(srcTimeData,micPos, srcPos)
+% function sDelayed = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
 % ---------------------------------------------------
 % srcTimeData : time-domain source signal
 % micPos : microphone positions

@@ -32,6 +32,13 @@ function [estX, estY, estBeta, J] = nfEstML_TOA_DOA(micFreqData,...
         end
     end
     
+%     myCost = @(x) -nfEvalCost(micFreqData,srcFreqData, micPos',...
+%         x,l,N,fs);
+%     x0 = [estX; estY];
+%     options = optimset('Display', 'off') ;
+%     xStar = fminunc(myCost,x0,options);
+%     estX = xStar(1); estY = xStar(2);
+    
     Ps = (2*l + 1) * (srcFreqData'*srcFreqData);
     estBeta = sqrt(maxJ)/(K*Ps);
 
