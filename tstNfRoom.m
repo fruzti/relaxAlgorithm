@@ -1,3 +1,5 @@
+% Test for estimating the virtual sources in a room.
+
 run experimentalSetup.m
 
 % Simulation Parameters
@@ -10,46 +12,24 @@ micPos(:,1) = micPos(:,1) + 4;
 arrayPos = mean(micPos(7:12,:));
 
 clearvars -except arrayPos srcPos micPos
-%%
-% N = 1921;
-N = 101;
-% N = 501;
-% srcTimeData = randn(N,1);
-srcTimeData = mls(7,1);
-% srcTimeData = repmat([srcTimeData; zeros(30,1)],3,1);
-N = length(srcTimeData);
-
-
-fs = 10e3;
-K = size(micPos,1);
-% srcPos2 = [1.5; 0.1; 1.26]';
-% srcPos3 = [2.6; 0.25; 1.26]';
 
 vrtSrcPos = genSrcsFromWalls(srcPos(1:2), [4 6]);
-vrtSrcPos = vrtSrcPos(:,[1 3:4]);
-trueValues = [srcPos(1:2); vrtSrcPos'];
-% trueValues = [srcPos(1:2); srcPos2(1:2); srcPos3(1:2)];
-%%
-srcTimeData = mls(7,4); N1 = 128;
-% srcTimeData = randn(201,1);
+
+% MLS sequence
+srcTimeData = mls(7,5); 
+% Num of samples after the signal reaches the last array
+N1 = 127*2+1;
+
 fileNameRIRs = 'ISM_RIRs.mat';
 AuData = ISM_AudioData(fileNameRIRs, srcTimeData);
 srcTimeData = srcTimeData(N1:end);
 micTimeData = AuData(N1:end,1:18); N = size(micTimeData,1); fs = 10e3;
 K = size(micPos,1);
-%%
-fs = 5e3;
-micTimeData = resample(micTimeData,fs,10e3);
-srcTimeData = resample(srcTimeData,fs, 10e3); N = size(micTimeData,1);
-%%
+
 micFreqData = getFreqMicData(micTimeData, N, K);
 srcFreqData = applyFFT(srcTimeData, N);
 L = 4;
 %%
-% Generation of Signals
-% [micTimeData, micFreqData, srcFreqData] = nfGenTstData(srcTimeData,...
-%     micPos, trueValues, fs);
-% L = size(trueValues,1);
 
 warning off
 [estX,estY,estBeta,J] = nfSequentialMLE_TOA_DOA(micTimeData,srcTimeData,...
@@ -70,5 +50,23 @@ estimates = [estX estY];
 [~,or] = sort(estimates(:,1));
 disp(estimates(or,:))
 disp('True')
-[~,or] = sort(trueValues(:,1));
-disp(trueValues(or,:))
+[~,or] = sort(vrtSrcPos(:,1));
+disp(vrtSrcPos(or,:))
+%%
+srcList = runMethodTest(micFreqData, srcTimeData, srcFreqData,...
+    micPos, fs, N, K, xGrid, yGrid);
+%%
+% TO FIX
+nSrcList = unique(srcList,'rows');
+
+A = zeros(N*K,size(nSrcList,1) + 1);
+
+tmp = nfGen_a(micPos(:,1:2)', [0.9859 0.3984]',floor(N/2),N,fs);
+A(:,1) = tmp(:) .* repmat(srcFreqData,K,1);
+
+for l = 1:size(nSrcList,1)
+    tmp = nfGen_a(micPos(:,1:2)',nSrcList(l,:)',floor(N/2),N,fs);
+    A(:,l+1) = tmp(:) .* repmat(srcFreqData,K,1);
+end
+
+estS = A\micFreqData(:);
