@@ -62,9 +62,8 @@ disp(vrtSrcPos(or,:))
 %%
 srcList = runMethodTest(micFreqData, srcTimeData, srcFreqData,...
     micPos, fs, N, K, xGrid, yGrid);
-% RELAX-Like
-% srcList = runMethodTest2(micFreqData, srcTimeData, srcFreqData,...
-%     micPos, fs, N, K, xGrid, yGrid);
+srcList = runMethodTest(micFreqData, srcTimeData, srcFreqData,...
+    micPos, fs, N, K, xGrid, yGrid);
 %%
 yDelay = [];
 yDelayF = [];
