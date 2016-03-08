@@ -15,6 +15,8 @@ function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
 
     if nargin < 5
         prevDOA = [];
+    end
+    if nargin < 6
         prevTOA = [];
     end
 
@@ -27,17 +29,22 @@ function [estDOA, estTOA, estBeta, J] = estML_TOA_DOA(micFreqData,...
     
     if ~isempty(prevTOA)
 
-        tolT = deg2rad(30);
-        tolE = deg2rad(1);
-        
-        for i = 1:length(prevDOA)
-            Theta = Theta( Theta < (prevDOA(i) - tolT) |...
-                Theta > (prevDOA(i) + tolT) );
+        tolE = deg2rad(5);
+        for i = 1:length(prevTOA)
             Eta = Eta( Eta < (prevTOA(i) - tolE) |...
                 Eta > (prevTOA(i) + tolE) );
         end
         
     end
+    
+    if ~isempty(prevDOA)
+        tolT = deg2rad(30);
+        for i = 1:length(prevDOA)
+            Theta = Theta( Theta < (prevDOA(i) - tolT) |...
+                Theta > (prevDOA(i) + tolT) );
+        end
+    end
+    
     J = zeros(length(Theta),length(Eta));
     % init maxJ
     maxJ = 0; 

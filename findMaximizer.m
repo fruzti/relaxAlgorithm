@@ -1,4 +1,4 @@
-function [maxValue, maxIndx] = findMaximizer(J)
+function [maxValue, maxIndx] = findMaximizer(J,mask)
 % function [maxValue, maxIndx] = findMaximizer(J)
 % ------------------------------------------------
 % maxValue : maximum of cost function
@@ -7,6 +7,10 @@ function [maxValue, maxIndx] = findMaximizer(J)
 
     dims = 2;   % hardcoded dimensionality (two parameters assumed)
     maxIndx = zeros(dims,1);
+    
+    if nargin > 1
+        J = J.*mask;
+    end
     
     [maxTmp, maxRows] = max(J);
     [maxValue, maxIndx(2)] = max(maxTmp);

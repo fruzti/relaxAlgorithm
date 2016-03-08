@@ -1,4 +1,4 @@
-function sDelayed = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
+function [sDelayed,sFreqDelayed] = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
 % function sDelayed = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
 % ---------------------------------------------------
 % srcTimeData : time-domain source signal
@@ -18,7 +18,8 @@ function sDelayed = nfGenDelayData(srcTimeData,micPos, srcPos, fs)
     % filling array
     a = nfGen_a(micPos, srcPos, l, N, fs);
     for k = 1:K
-        sDelayed(:,k) = applyIFFT(a(:,k).*srcFreqData,N);
+        sFreqDelayed(:,k) = a(:,k).*srcFreqData;
+        sDelayed(:,k) = applyIFFT(sFreqDelayed(:,k),N);
     end
     
 end

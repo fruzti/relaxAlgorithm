@@ -1,4 +1,6 @@
-% Test of Sequential ML algorithm from a single virtual source
+% Test of Sequential ML algorithm for a simple image source model
+% The assumption of plane waves is considered
+
 clear all, close all
 
 P = 80;
@@ -42,7 +44,6 @@ dRfx2 = norm(rfxPos2);
 etaRfx2 = w0*dRfx2*fs/c;
 betaRfx2 = 1/(4*pi*dRfx2);
 
-
 dist2wall = 3;
 n = [0; -1]; % normal to the wall
 % position of 2nd virtual source
@@ -54,16 +55,35 @@ etaRfx3 = w0*dRfx3*fs/c;
 betaRfx3 = 1/(4*pi*dRfx3);
 
 
-trueDOA = [DOAsrc; DOArfx; DOArfx2; DOArfx3];
-trueTOA = [etaSrc; etaRfx; etaRfx2; etaRfx3]; 
-trueBeta = [betaSrc; betaRfx; betaRfx2; betaRfx3];
+dist2wall = 0.5;
+n = [0; 1]; % normal to the wall
+% position of 2nd virtual source
+rfxPos4 = srcPos + 2*dist2wall * n;
+% doa and toa of virtual source
+DOArfx4 = atan2(rfxPos4(2), rfxPos4(1));
+dRfx4 = norm(rfxPos4);
+etaRfx4 = w0*dRfx4*fs/c;
+betaRfx4 = 1/(4*pi*dRfx4);
+
+
+trueDOA = [DOAsrc; DOArfx; DOArfx2; DOArfx3; DOArfx4];
+trueTOA = [etaSrc; etaRfx; etaRfx2; etaRfx3; etaRfx4]; 
+trueBeta = [betaSrc; betaRfx; betaRfx2; betaRfx3; betaRfx3];
 L = length(trueTOA);
 
 warning off
 
+% data model based on plane waves
 [micFreqData, srcFreqData, trueDOA, trueTOA, ...
     micTimeData, srcTimeData] = genTstMicData(K, p,L, trueDOA, trueTOA,...
     P,fs,f0,trueBeta);
+
+% test using model mismatch due to near field effects
+micPos = rho * [cos(2*pi*(0:(K-1))/K); sin(2*pi*(0:(K-1))/K)]';
+srcPos = [srcPos rfxPos rfxPos2 rfxPos3 rfxPos4]';
+
+[micTimeData, micFreqData, srcFreqData] = ...
+    nfGenTstData(srcTimeData, micPos, srcPos, fs);
 
 [estDOA, estTOA, ~, J] = sequentialMLE_TOA_DOA(micTimeData,...
     srcTimeData, srcFreqData, K, p, L, N);
@@ -86,3 +106,6 @@ p1 = polar(deg2rad(trueValues(:,1)), trueValues(:,2),'og');
 hold on, p2 = polar(deg2rad(estimates(:,1)), estimates(:,2), 'xr');
 legend([p1 p2],'True Values', 'Estimates')
 title('Estimation of ISM')
+
+figure, imagesc(J{1}), xlabel('Range'), ylabel('DOA')
+title('NLS Cost Function')

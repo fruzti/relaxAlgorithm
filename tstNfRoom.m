@@ -37,10 +37,16 @@ micFreqData = getFreqMicData(micTimeData, N, K);
 srcFreqData = applyFFT(srcTimeData, N);
 L = 4;
 %%
+% nLvl = -10;
+SNR = inf;
+nPow =  mean(var(micTimeData))*10^(-SNR/10);
+n = sqrt(nPow) * randn(size(micTimeData));
+micTimeDataN = micTimeData + n;
+%%
 
 warning off
-[estX,estY,estBeta,J] = nfSequentialMLE_TOA_DOA(micTimeData,srcTimeData,...
-    srcFreqData,K,micPos,L,N,fs);
+[estX,estY,estBeta,J] = nfSequentialMLE_TOA_DOA(micTimeDataN,srcTimeData,...
+    srcFreqData,K,micPos,1,N,fs);
 
 % xGrid = 0:0.01:4;
 % yGrid = 0:0.01:0.5;
@@ -58,7 +64,7 @@ estimates = [estX estY];
 disp(estimates(or,:))
 disp('True')
 [~,or] = sort(vrtSrcPos(:,1));
-disp(vrtSrcPos(or,:))
+disp([srcPos(1:2)' vrtSrcPos(or,:)])
 %%
 srcList = runMethodTest(micFreqData, srcTimeData, srcFreqData,...
     micPos, fs, N, K, xGrid, yGrid);
@@ -79,10 +85,17 @@ for l = 1:(size(srcList,1)+1)
     yDelay(:,l) = tmp(:);
     yDelayF(:,l) = tmpF(:);
 end
+
+
+%%
 bESt = (yDelay(:,2:end)\(micTimeData(:)-yDelay(:,1)));
-indx = (abs(bESt) > 0.01) .* sign(bESt) ; 
+bEStF = (yDelayF(:,2:end)\(micTimeData(:)-yDelayF(:,1)));
+indx = (abs(bESt) > 0.01) .* sign(bESt); 
+indxF = (abs(bEStF) > 0.01) .* sign(bEStF); 
 estY = yDelay(:,1) + yDelay(:,2:end)*indx;
-estYF = yDelayF(:,1) + yDelayF(:,2:end)*indx;
+% estY = yDelay(:,1) + yDelay(:,2:end)*bESt;
+estYF = yDelayF(:,1) + yDelayF(:,2:end)*indxF;
+% estYF = yDelayF(:,1) + yDelayF(:,2:end)*bEStF;
 
 figure, plot(estY), hold on, plot(micTimeData(:),'--r')
 figure, plot(estYF), hold on, plot(micTimeData(:),'--r')

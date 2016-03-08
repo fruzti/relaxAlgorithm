@@ -11,9 +11,6 @@ arrayPos = mean(micPos(7:12,:));
 
 clearvars -except arrayPos srcPos micPos
 %%
-% N = 1921;
-N = 101;
-% N = 501;
 % srcTimeData = randn(N,1);
 srcTimeData = mls(7,1);
 % srcTimeData = repmat([srcTimeData; zeros(30,1)],3,1);
@@ -29,27 +26,11 @@ vrtSrcPos = genSrcsFromWalls(srcPos(1:2), [4 6]);
 vrtSrcPos = vrtSrcPos(:,[1 3:4]);
 trueValues = [srcPos(1:2); vrtSrcPos'];
 % trueValues = [srcPos(1:2); srcPos2(1:2); srcPos3(1:2)];
-%%
-srcTimeData = mls(7,4); N1 = 128;
-% srcTimeData = randn(201,1);
-fileNameRIRs = 'ISM_RIRs.mat';
-AuData = ISM_AudioData(fileNameRIRs, srcTimeData);
-srcTimeData = srcTimeData(N1:end);
-micTimeData = AuData(N1:end,1:18); N = size(micTimeData,1); fs = 10e3;
-K = size(micPos,1);
-%%
-fs = 5e3;
-micTimeData = resample(micTimeData,fs,10e3);
-srcTimeData = resample(srcTimeData,fs, 10e3); N = size(micTimeData,1);
-%%
-micFreqData = getFreqMicData(micTimeData, N, K);
-srcFreqData = applyFFT(srcTimeData, N);
-L = 4;
-%%
+
 % Generation of Signals
-% [micTimeData, micFreqData, srcFreqData] = nfGenTstData(srcTimeData,...
-%     micPos, trueValues, fs);
-% L = size(trueValues,1);
+[micTimeData, micFreqData, srcFreqData] = nfGenTstData(srcTimeData,...
+    micPos, trueValues, fs);
+L = size(trueValues,1);
 
 warning off
 [estX,estY,estBeta,J] = nfSequentialMLE_TOA_DOA(micTimeData,srcTimeData,...
@@ -72,3 +53,10 @@ disp(estimates(or,:))
 disp('True')
 [~,or] = sort(trueValues(:,1));
 disp(trueValues(or,:))
+
+[tE, rE] = cart2pol(estimates(:,1), estimates(:,2));
+[tT, rT] = cart2pol(trueValues(:,1), trueValues(:,2));
+figure, p1 = polar(tT, rT,'og');
+hold on, p2 = polar(tE, rE, 'xr');
+legend([p1 p2],'True Values', 'Estimates')
+title('Estimation of ISM')

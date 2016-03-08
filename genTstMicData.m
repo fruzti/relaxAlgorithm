@@ -1,9 +1,9 @@
 function [micFreqData, srcFreqData, theta, eta, ...
     micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
     P,fs,f0,beta)
-%function [micFreqData, srcFreqData, theta, eta, ...
-%   micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
-%     P,fs)
+% function [micFreqData, srcFreqData, theta, eta, ...
+%     micTimeData, srcTimeData] = genTstMicData(K, p, L, trueDOA, trueTOA,...
+%     P,fs,f0,beta)
 % --------------------------------------------------------------------
 % Generate a pseudorandom signal
 % micFreqData : freq-domain signal at the microphones
@@ -19,6 +19,7 @@ function [micFreqData, srcFreqData, theta, eta, ...
 % trueTOA : input DOAs (optional)
 % P : number of periods for the sinusoid (optional)
 % fs : sampling frequency (optional)
+% beta : attenuation (optional)
 
     if nargin < 3
         L = 1;
@@ -37,6 +38,9 @@ function [micFreqData, srcFreqData, theta, eta, ...
         f0 = 5e3;
     end
 
+    if nargin < 9
+        beta = ones(L,1);
+    end
     % sinosoid frequency
     w = 2*pi*f0;
     % number of samples

@@ -17,9 +17,12 @@ trueTOA = 2*pi/L * (0:(L-1))';
 N = length(srcTimeData);
 
 % RELAX : BEGIN
-[estDOA, estTOA, estBeta] = sequentialMLE_TOA_DOA(micTimeData,...
+[estDOA, estTOA, estBeta, J] = sequentialMLE_TOA_DOA(micTimeData,...
     srcTimeData, srcFreqData, K, rho, L, N);
-
+%%
 disp('Estimates')
 disp(strcat('------DOAs---','--TOAs---', '-EstBetas---'))
 disp([estDOA, estTOA, estBeta])
+disp('True')
+disp(strcat('------DOAs---','--TOAs---', '-EstBetas---'))
+disp([trueDOA, trueTOA, ones(L,1)])

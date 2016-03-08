@@ -16,7 +16,7 @@ function [estX, estY, estBeta, J] = nfEstML_TOA_DOA(micFreqData,...
     K = size(micPos,1);
     
 %     [xGrid, yGrid] = meshgrid(0:0.01:4, 0:0.01:0.5);
-    xGrid = -3:0.1:8;
+    xGrid = -3:0.1:9;             
     yGrid = -3:0.1:12;
     
     J = zeros(length(xGrid),length(yGrid));
@@ -43,6 +43,3 @@ function [estX, estY, estBeta, J] = nfEstML_TOA_DOA(micFreqData,...
     estBeta = sqrt(maxJ)/(K*Ps);
 
 end
-
-
-

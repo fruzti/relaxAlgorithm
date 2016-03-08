@@ -19,6 +19,20 @@ srcList = zeros(L,2);
 
 sJpSum = 0;
 
+
+% feasible region
+[r2Src,~,~] = getMic2SrcParams(micPos(:,1:2)',srcTestPos');
+phi = 0:0.1:2*pi;
+for it = 1:size(r2Src,1)
+    pntsCirc(:,it,:) = r2Src(it) * [cos(phi)' sin(phi)'] + ...
+        repmat(micPos(it,1:2),length(phi),1);
+end
+
+pntsCirc = [vec(pntsCirc(:,:,1)),vec(pntsCirc(:,:,2))];
+[xM, yM] = meshgrid(xGrid,yGrid); xM = xM(:); yM = yM(:);
+feasiblePoints = inpolygon(xM,yM,pntsCirc(:,1), pntsCirc(:,2));
+maskFeasible = reshape(~feasiblePoints, length(yGrid), length(xGrid))';
+%
 for l = 1:L
     
     y_p = nfGenDelayData(srcTimeData, micPos(:,1:2)', srcTestPos', fs);
@@ -29,7 +43,7 @@ for l = 1:L
     
     sJpSum = sJpSum + sJp{l};
     
-    [~,tmpIndx] = findMaximizer(sJtotal./sJpSum);
+    [~,tmpIndx] = findMaximizer(sJtotal./sJpSum,maskFeasible);
     srcList(l,:) = [xGrid(tmpIndx(1)) yGrid(tmpIndx(2))];
     
     % line search
