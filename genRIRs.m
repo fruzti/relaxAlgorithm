@@ -51,6 +51,7 @@ end
 % srcTimeData = mls(order,P); 
 N1 = 20e3;
 srcTimeData = randn( N1 ,1);
+% srcTimeData = repmat(srcTimeData,40,1);
 % triaWnd = triang(1002); win = triaWnd(502:end);
 % windT = repmat(win,ceil(N1/501),1);
 % srcTimeData = srcTimeData.*windT(1:N1);

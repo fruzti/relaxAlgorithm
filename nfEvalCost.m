@@ -1,5 +1,5 @@
 function J = nfEvalCost(micFreqData,srcFreqData, micPos,srcPos,l,N,fs)
-% function J = nfEvalCost(micData,micPos,srcPos,l,N,fs)
+% function J = nfEvalCost(micFreqData,srcFreqData, micPos,srcPos,l,N,fs)
 %----------------------------------------------------
 % micFreqData : matrix containing the FFT of the data in the array
 % srcFreqData : matrix containing the FFT of the source signal
@@ -19,7 +19,7 @@ function J = nfEvalCost(micFreqData,srcFreqData, micPos,srcPos,l,N,fs)
         tmp = tmp + conj(a(:,k)) .* micFreqData(:,k);
     end
     
-    tmp = conj(srcFreqData) .* tmp;
+    tmp = sum(conj(srcFreqData) .* tmp);
     
     J = norm(tmp)^2;
 end

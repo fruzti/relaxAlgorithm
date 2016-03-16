@@ -6,7 +6,7 @@ srcTimeData = randn(lenSeq,1);
 micTimeData = zeros(K,N);           % Init variable for microphone data
 
 for k = 1:K
-    micTimeData(k,:) = filteR(h(k,:),1,srcTimeData);
+    micTimeData(k,:) = filter(h(k,:),1,srcTimeData);
 end
 
 micNewTimeData = micTimeData;       % Assignment of data

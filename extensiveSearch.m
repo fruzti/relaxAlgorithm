@@ -1,5 +1,5 @@
 function [estPos, e, xGrid, yGrid] = extensiveSearch(micTimeData,srcTimeData,...
-    micPos,fs, xGrid, yGrid)
+    micPos,fs, xGrid, yGrid,flag)
 
     K = size(micPos,1);
     minSeparationOfSources = 1e-3;              % time [s]
@@ -28,7 +28,11 @@ function [estPos, e, xGrid, yGrid] = extensiveSearch(micTimeData,srcTimeData,...
         end
     end
     
-    [~,maxIndx] = findMaximizer(detrend(e).*detrend(e')');
+    if nargin > 6
+        [~,maxIndx] = findMaximizer(-e);
+    else
+        [~,maxIndx] = findMaximizer(detrend(e).*detrend(e')');
+    end
     estPos = [xGrid(maxIndx(1)) yGrid(maxIndx(2))];
 
 end

@@ -1,7 +1,9 @@
+clear all, 
+close all
 % Simulation Parameters
 radius = 0.06;
 numOfMics = 3;
-numOfLoudSpeakers = 4;
+numOfLoudSpeakers = 3;
 K = numOfLoudSpeakers*numOfMics;
 fs = 96e3;
 % Size of the room
@@ -16,13 +18,14 @@ numIt = 1;
 lenSeq = round(T60*fs/2);
 if (mod(lenSeq,2) == 1); lenSeq = lenSeq+1; end
 % Processing size
-lenFrame = 501;
+lenFrame = 3001;
 offSetSample = 4e3;
 numFrames = floor((lenSeq-offSetSample)/lenFrame);
 % Source to estimate
 numOfSources = 5; % Four walls and source
 %% Iterative Solution
 for it = 1:numIt
+    disp(strcat('Num of It:',num2str(it)))
     %% Creating Data 
     % Position of the arrays
     xCenterPos =  min([0.5 1.8 3.4 4.3] + 0.1*randn(1,4), roomDim(1) - 0.3);
@@ -34,6 +37,7 @@ for it = 1:numIt
     xSrcPos = (roomDim(1)- 0.5) * rand(1) + 0.5;
     ySrcPos = (2 - 1.5) * rand(1) + 1;
     srcPos = [xSrcPos ySrcPos zPos];
+    vrtSrcPos = genSrcsFromWalls(srcPos,roomDim(1:2));
     % Original Grid
     xLlim = -(srcPos(1) + 1); xUlim = 2*(roomDim(1) - srcPos(1)) + 1 + srcPos(1);
     yLlim = -(srcPos(2) + 1); yUlim = 2*(roomDim(2) - srcPos(2)) + 1 + srcPos(2);
@@ -54,51 +58,64 @@ for it = 1:numIt
     for l = 1:numOfLoudSpeakers
         centerPos = [xCenterPos(l) yCenterPos(l) zPos];
         arrayPos(l,:) = centerPos(1:2);
-        L{l} = LoudSpeaker(centerPos, numOfMics, radius);
-        L{l} = L{l}.genNewSim(srcSignal, srcPos, roomDim, T60,fs);
+%         L{l} = LoudSpeaker(centerPos, numOfMics, radius,3);
+%         L{l} = L{l}.genNewSim(srcSignal, srcPos, roomDim, T60,fs);
         indx = (1:numOfMics) + (l-1)*numOfMics;
         micTemporalData(:,indx) = L{l}.micSignals';
         micPos(indx,:) = L{l}.micPos(:,1:2);
     end
     micNewTimeData = micTemporalData;
-    vrtSrcPos = genSrcsFromWalls(srcPos(1:2),roomDim(1:2));
-    plotRoom(micPos,srcPos(1:2),vrtSrcPos,numOfMics);
-    %% Finding the reflections
+%     plotRoom(micPos,srcPos(1:2),vrtSrcPos,numOfMics);
+    %% Finding the reflections    
     Jsrc = cell(numOfSources,1);
     estPos = nan(numOfSources,2);
     
+    estPos(1,:) = srcPos(1:2);
+%     disp('Source Position:')
+%     disp(estPos(1,:))
+%     disp('---------------------')
     for l = 1:numOfSources
+        if l > 1 % Assumes source location known
         %% Coarse Estimate
         Jtotal = 0;
-        disp(strcat('Estimation Source #',num2str(l)))
-        disp('Init Coarse Estimate')
-        disp('---------------------')
-        for frame = 1:numFrames
+%         disp(strcat('Estimation Source #',num2str(l)))
+%         disp('Init Coarse Estimate')
+%         disp('---------------------')
+        for frame = 1:1
             startSample =  offSetSample + (frame-1)*lenFrame + 1;
             endSample = startSample + lenFrame - 1;
             micData = micNewTimeData(startSample:endSample,:);
+            micData = micData + randn(size(micData))*0.1;
             srcData = srcSignal(startSample:endSample);
             srcFreqData = getFreqMicData(srcData,lenFrame,1);
             micFreqData = getFreqMicData(micData,lenFrame,K);
-            J = nfEstML(micFreqData,...
-                srcFreqData,micPos,fs, xPoints, yPoints);
+            if l > 2
+                J = nfEstML(micFreqData,...
+                    srcFreqData,micPos,fs, xPoints, yPoints,w);
+            else
+                J = nfEstML(micFreqData,...
+                    srcFreqData,micPos,fs, xPoints, yPoints);
+            end
             Jtotal = Jtotal + J;
         end
         Jsrc{l} = Jtotal./max(Jtotal(:));
         [~,indxMax] = max(Jsrc{l});
         estPos(l,:) = [xPoints(indxMax) yPoints(indxMax)];
-        disp(estPos(l,:))
-        disp('---------------------')
+        cEstPos(l-1,:) = estPos(l,:);
+%         disp(estPos(l,:))
+%         disp('---------------------')
         %% Refined Estimate
-        disp('Init Refined Estimate')
-        disp('---------------------')
+%         disp('Init Refined Estimate')
+%         disp('---------------------')
         if l > 1
             sector = findSectorOfPoint(estPos(1,:), estPos(l,:));
             if (sector == 1 || sector == 3) % Grid in x-axis
-                xF = estPos(l,1) - 0.5 : 0.005 : estPos(l,1) + 0.5;
+%                 xF = estPos(l,1) - 0.8 : 0.005 : estPos(l,1) + 0.8;
+                xF = estPos(l,1) - 2 : 0.005 : estPos(l,1) + 2;
                 yF = estPos(1,2) - 0.01 : 0.005 : estPos(1,2) + 0.01;
             elseif (sector == 2 || sector == 4) % Grid in y-axis
-                yF = estPos(l,2) - 0.5 : 0.005 : estPos(l,2) + 0.8;
+%                 yF = estPos(l,2) - 0.8 : 0.005 : estPos(l,2) + 0.8;
+                yF = estPos(l,2) - 2 : 0.005 : estPos(l,2) + 2;
                 xF = estPos(1,1) - 0.01 : 0.005 : estPos(1,1) + 0.01;
             end
         else
@@ -106,20 +123,52 @@ for it = 1:numIt
             yF = estPos(l,2) - 0.5 : 0.005 : estPos(l,2) + 0.5;
         end
         tmpMicPos = [micPos zPos*ones(K,1)];
-        estPos(l,:) = extensiveSearch(micNewTimeData', srcSignal, tmpMicPos, fs, xF, yF);
-        disp(estPos(l,:))
-        disp('---------------------')
+        if l > 2
+            %estPos(l,:) = extensiveSearchWalls(micNewTimeData', srcSignal,...
+            %    tmpMicPos, fs, xF, yF,w);
+            [XM, YM] = meshgrid(xF,yF);
+            xP = XM(:); yP=(YM(:));
+            J = nfEstML(micFreqData,...
+                    srcFreqData,micPos,fs, xP, yP,w);
+            [~,indxMax] = max(J);
+            estPos(l,:) = [xP(indxMax) yP(indxMax)];
+        elseif l == 2
+%             estPos(l,:) = extensiveSearch(micNewTimeData', srcSignal,...
+%                 tmpMicPos, fs, xF, yF);
+            [XM, YM] = meshgrid(xF,yF);
+            xP = XM(:); yP=(YM(:));
+            J = nfEstML(micFreqData,...
+                    srcFreqData,micPos,fs, xP, yP);
+            [~,indxMax] = max(J);
+            estPos(l,:) = [xP(indxMax) yP(indxMax)];
+        else
+%             estPos(l,:) = extensiveSearch(micNewTimeData', srcSignal,...
+%                 tmpMicPos, fs, xF, yF,1);
+            [XM, YM] = meshgrid(xF,yF);
+            xP = XM(:); yP=(YM(:));
+            J = nfEstML(micFreqData,...
+                    srcFreqData,micPos,fs, xP, yP);
+            [~,indxMax] = max(J);
+            estPos(l,:) = [xP(indxMax) yP(indxMax)];
+        end
+%         disp(estPos(l,:))
+%         disp('---------------------')
+        end
         %% Reducing Feasible set
         if l > 1
             switch (sector)
                 case 1
                     mask = ( mask .* (xGrid < mXUlim) ) ~= 0;
+                    w(l-1,:) = [1 0.5*(estPos(l,1) + estPos(1,1))];
                 case 2
                     mask = ( mask .* (yGrid < mYUlim) ) ~= 0;
+                    w(l-1,:) = [0 0.5*(estPos(l,2) + estPos(1,2))];
                 case 3
                     mask = ( mask .* (xGrid > mXLlim) ) ~= 0;
+                    w(l-1,:) = [1 0.5*(estPos(l,1) + estPos(1,1))];
                 case 4
                     mask = ( mask .* (yGrid > mYLlim) ) ~= 0;
+                    w(l-1,:) = [0 0.5*(estPos(l,2) + estPos(1,2))];
             end
             xPoints = xGrid(mask);
             yPoints = yGrid(mask);
@@ -142,8 +191,26 @@ for it = 1:numIt
         delayData = nfGenDelayDataNonPeriodic(srcSignal, micPos,...
             estPos(l,:), fs);
         micNewTimeData = micNewTimeData - delayData;
+        % Removing 2nd order reflections
+%         if l > 2
+%             for li = 1:(l-1)
+%                 srcRflxPos = nan(1,2);
+%                 switch (w(li,1))
+%                     case 0
+%                         srcRflxPos(1) = estPos(l,1);
+%                         srcRflxPos(2) = 2*w(li,2) - estPos(l,2);
+%                     case 1
+%                         srcRflxPos(2) = estPos(l,2);
+%                         srcRflxPos(1) = 2*w(li,2) - estPos(l,1);
+%                 end
+%                 delayData = nfGenDelayDataNonPeriodic(srcSignal, micPos,...
+%                     srcRflxPos, fs);
+%                 micNewTimeData = micNewTimeData - delayData;
+%             end
+%         
+%         end
     end
-    
+    figure,plotRoom(micPos, srcPos,vrtSrcPos,numOfMics, estPos')
+%     hist{it} = estPos;
+    %% It
 end
-vrtSrcPos = genSrcsFromWalls(srcPos,roomDim(1:2));
-plotRoom(micPos, srcPos,vrtSrcPos,numOfMics, estPos')

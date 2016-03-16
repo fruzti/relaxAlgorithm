@@ -1,4 +1,4 @@
-function J = nfEstML(micFreqData,...
+function J = nfEstMLWall(micFreqData,...
     srcFreqData,micPos,fs, xPoints, yPoints,walls)
 % function J = nfEstML_TOA_DOA(micFreqData,...
 %     srcFreqData,micPos,fs)
@@ -24,15 +24,25 @@ function J = nfEstML(micFreqData,...
     J = zeros(length(xPoints),1);
     
 %     maxJ = 0;
+
+    if nargin > 6
+        costFunc = @(x) nfEvalCostWall(micFreqData,srcFreqData, micPos',...
+            x,l,N,fs,walls);
+    else
+        costFunc = @(x) nfEvalCost(micFreqData,srcFreqData, micPos',...
+            x,l,N,fs);
+    end
+    
     for i = 1:length(xPoints)
         srcPos = [xPoints(i); yPoints(i)];
-        J(i) = nfEvalCost(micFreqData,srcFreqData, micPos',...
-            srcPos,l,N,fs);
+%         J(i) = nfEvalCost(micFreqData,srcFreqData, micPos',...
+%             srcPos,l,N,fs);
+          J(i) = costFunc(srcPos);
 %         if J(i) > maxJ
 %             maxJ = J(i); estX = xGrid(i); estY = yGrid(i);
 %         end
     end
-%     
+    
 %     myCost = @(x) -nfEvalCost(micFreqData,srcFreqData, micPos',...
 %         x,l,N,fs);
 %     x0 = [estX; estY];
